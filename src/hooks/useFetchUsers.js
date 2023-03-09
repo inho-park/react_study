@@ -1,16 +1,22 @@
-import { useState } from 'react';
+import { useState } from "react";
 import axios from "axios";
 
-
-export const App = () => {
+// 사용자 목록을 얻는 사용자 정의 훅
+export const useFetchUsers = () => {
     // 얻은 사용자 정보
     const [userList, setUserList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
+    // const { userList, onClickFetchUser } = useFetchUsers();
 
     // 화면에 표시될 때 사용자 정보 얻기
     const onClickFetchUser = () => {
-        axios.get("https://localhost:8080")
+        // 버튼 클릭 시 로딩 플래그 on, 에러 플래그 off
+        setIsLoading(true);
+        setIsError(false);
+
+        // API 실행
+        axios.get("http://localhost:8080")
             .then(result => {
                 // 성과 이름을 결합하도록 변환
                 const users = result.data.map(user => ({
@@ -26,22 +32,6 @@ export const App = () => {
             // 처리가 완료되면 로딩 플래그 off
             .finally(() => setIsLoading(false));
 
+        return {userList, isLoading, isError, onClickFetchUser};
     };
-
-    return (
-        <div>
-            <button onClick={onClickFetchUser}>사용자 정보 얻기</button>
-                {/*에러 발생 시 에러 메시지 표시*/}
-                {isError && <p style={{ color: "red" }}>에러 발생</p>}
-                {/*로딩 중에는 표시 전환*/}
-                {isLoading? (
-                    <p>데이터를 가져오고 있습니다</p>
-                ) : (
-                    userList.map(user => (
-                        <p key={user.id}>{`${user.id} : ${user.name}(${user.age} 세)`}</p>
-                    ))
-                )};
-        </div>
-
-    );
 };
